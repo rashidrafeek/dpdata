@@ -125,7 +125,7 @@ def _load_pos_block(fp, natoms):
         return blk, ss
 
 
-def load_data(fname, natoms, begin=0, step=1, convert=1.0):
+def load_data(fname, natoms, begin=0, step=1, convert=1.0, transpose=False):
     coords = []
     steps = []
     cc = 0
@@ -140,6 +140,9 @@ def load_data(fname, natoms, begin=0, step=1, convert=1.0):
                     steps.append(ss)
             cc += 1
     coords = convert * np.array(coords)
+    if transpose:
+        # Transpose blocks for all steps
+        coords = coords.transpose(0,2,1)
     return coords, steps
 
 
@@ -203,7 +206,8 @@ def to_system_data(input_name, prefix, begin=0, step=1):
     data["orig"] = np.zeros(3)
     try:
         data["cells"], tmp_steps = load_data(
-            prefix + ".cel", 3, begin=begin, step=step, convert=length_convert
+            prefix + ".cel", 3, begin=begin, step=step, convert=length_convert,
+            transpose=True
         )
         if csteps != tmp_steps:
             csteps.append(None)
